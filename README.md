@@ -2,8 +2,8 @@
 
 
 Python Scripts:
-- Intro_plot_JOE.ipynb: Generates the plots for the motivating example from the thesis' introduction. - Produces figures Fig 1.1, 1.2, 1.3.
-
+- Intro_plot_JOE.ipynb: Generates the plots for the motivating example from the thesis' introduction (JOE). - Produces figures Fig 1.1, 1.2, 1.3.
+- introduction_mot_example_km.R : Generates the plots for the motivating example from the thesis' introduction (KM). - Produces figure Fig 1.4.
 
 
 
