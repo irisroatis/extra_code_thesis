@@ -33,9 +33,7 @@ if (!dir.exists(PLOT_DIR)) dir.create(PLOT_DIR, recursive = TRUE)
 
 set.seed(4)
 
-# =============================================================================
-# HELPERS
-# =============================================================================
+
 
 save_pdf <- function(filename, expr, width = 10, height = 7) {
   pdf(file.path(PLOT_DIR, filename), width = width, height = height)
@@ -81,9 +79,7 @@ predict_surv_at <- function(sf, times) {
   as.numeric(summary(sf, times = times, extend = TRUE)$surv)
 }
 
-# =============================================================================
-# DATA GENERATING PROCESS  (non-proportional hazards)
-# =============================================================================
+
 
 simulate_data <- function(n, C_vec, lam, censor_prop, tau_vec, beta_cont, alpha_vec,
                           binning = "quantile") {
@@ -93,14 +89,14 @@ simulate_data <- function(n, C_vec, lam, censor_prop, tau_vec, beta_cont, alpha_
   n_cont <- length(beta_cont)
   n_cat  <- length(tau_vec)
   
-  # --- continuous covariates ---
+  #  continuous covariates 
   cont_df <- as.data.frame(
     setNames(lapply(seq_len(n_cont), function(i) rnorm(n)),
              paste0("cont_", seq_len(n_cont)))
   )
   lp_cont <- as.numeric(as.matrix(cont_df) %*% beta_cont)
   
-  # --- categorical covariates (binned latent) ---
+  #  categorical covariates (binned latent) 
   latent_mat <- matrix(0, n, n_cat)
   cat_df     <- data.frame(matrix(NA_character_, n, n_cat))
   names(cat_df) <- paste0("cat_", seq_len(n_cat))
@@ -119,7 +115,7 @@ simulate_data <- function(n, C_vec, lam, censor_prop, tau_vec, beta_cont, alpha_
   }
   colnames(latent_mat) <- paste0("latent_", seq_len(n_cat))
   
-  # --- piecewise-constant hazard (sign flip at each tau) ---
+  #  piecewise-constant hazard (sign flip at each tau) 
   tau_sorted <- sort(unique(tau_vec))
   starts <- c(0, tau_sorted)
   ends   <- c(tau_sorted, Inf)
@@ -162,9 +158,7 @@ simulate_data <- function(n, C_vec, lam, censor_prop, tau_vec, beta_cont, alpha_
         data.frame(Time = Time, Event = Event))
 }
 
-# =============================================================================
-# ONE-HOT ENCODING  (strict: fully-censored categories → all zeros)
-# =============================================================================
+
 
 ohe <- function(cat_cols, train_df, test_df) {
   tr <- train_df; te <- test_df
@@ -198,9 +192,7 @@ ohe <- function(cat_cols, train_df, test_df) {
   list(train = tr, test = te)
 }
 
-# =============================================================================
-# KM PRECOMPUTATION
-# =============================================================================
+
 
 precompute_km <- function(train_df, cat_cols, candidate_times) {
   fallback <- survfit(Surv(Time, Event) ~ 1, data = train_df)
@@ -241,9 +233,7 @@ assemble_km_matrix <- function(full_mats, selected_idx, cat_cols) {
   do.call(cbind, parts)
 }
 
-# =============================================================================
-# GREEDY AIC SELECTION
-# =============================================================================
+
 
 km_greedy_aic <- function(train_df, cont_cols, cat_cols,
                           candidate_times, full_mats) {
@@ -308,9 +298,7 @@ km_greedy_aic <- function(train_df, cont_cols, cat_cols,
   list(selected = selected, log = log_df, final_aic = best_aic)
 }
 
-# =============================================================================
-# SIMULATE DATA
-# =============================================================================
+
 
 cat_cols_all  <- paste0("cat_",     seq_len(N_CAT_FEATURES))
 lat_cols_all  <- paste0("latent_",  seq_len(N_CAT_FEATURES))
@@ -341,9 +329,7 @@ test_noz   <- test_all[,  noz_cols, drop = FALSE]
 cat("Events in train:", sum(train_noz$Event),
     "| Event fraction:", round(mean(train_noz$Event), 3), "\n")
 
-# =============================================================================
-# FIT MODELS
-# =============================================================================
+
 
 # ---- latent (oracle) ----
 lat_train <- train_all[, c(cont_cols_all, lat_cols_all, "Time", "Event")]
